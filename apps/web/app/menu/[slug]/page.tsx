@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { api, ApiError } from "@/lib/api";
 import type { PublicMenuResponse } from "@/lib/types";
-import { DishCard } from "@/components/DishCard";
+import { MenuBrowser } from "@/components/menu/MenuBrowser";
 
 async function getMenu(slug: string): Promise<PublicMenuResponse | null> {
   try {
@@ -19,42 +19,29 @@ export default async function MenuPage({ params }: { params: { slug: string } })
   if (!menu) notFound();
 
   const { restaurant, categories, items } = menu;
-  const uncategorized = items.filter((item) => !item.categoryId);
 
   return (
-    <main className="mx-auto min-h-screen max-w-md pb-16">
-      <header className="px-4 pb-4 pt-8 text-center">
-        <h1 className="text-2xl font-bold text-gray-900">{restaurant.name}</h1>
-        {restaurant.description && <p className="mt-1 text-sm text-gray-500">{restaurant.description}</p>}
+    <main className="mx-auto min-h-screen max-w-md bg-neutral-50 pb-16">
+      <header className="flex flex-col items-center gap-3 px-4 pb-5 pt-9 text-center">
+        {restaurant.logoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={restaurant.logoUrl}
+            alt={restaurant.name}
+            className="h-16 w-16 rounded-full border border-gray-200 object-cover shadow-sm"
+          />
+        ) : (
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-50 text-lg font-bold text-brand-600">
+            {restaurant.name.charAt(0).toUpperCase()}
+          </div>
+        )}
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">{restaurant.name}</h1>
+          {restaurant.description && <p className="mt-1 text-sm text-gray-500">{restaurant.description}</p>}
+        </div>
       </header>
 
-      {items.length === 0 ? (
-        <p className="px-4 text-center text-sm text-gray-400">This menu isn&apos;t available yet — check back soon.</p>
-      ) : (
-        <div className="flex flex-col gap-10 px-4">
-          {categories.map((category) => {
-            const categoryItems = items.filter((item) => item.categoryId === category.id);
-            if (categoryItems.length === 0) return null;
-            return (
-              <section key={category.id} className="flex flex-col gap-5">
-                <h2 className="text-lg font-bold text-gray-900">{category.name}</h2>
-                {categoryItems.map((item) => (
-                  <DishCard key={item.id} item={item} />
-                ))}
-              </section>
-            );
-          })}
-
-          {uncategorized.length > 0 && (
-            <section className="flex flex-col gap-5">
-              {categories.length > 0 && <h2 className="text-lg font-bold text-gray-900">More</h2>}
-              {uncategorized.map((item) => (
-                <DishCard key={item.id} item={item} />
-              ))}
-            </section>
-          )}
-        </div>
-      )}
+      <MenuBrowser categories={categories} items={items} />
     </main>
   );
 }
