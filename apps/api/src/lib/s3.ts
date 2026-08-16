@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { env, assertS3Configured } from "./env";
 
@@ -46,6 +46,17 @@ export async function putObject(params: {
       Key: params.key,
       Body: params.body,
       ContentType: params.contentType,
+    })
+  );
+}
+
+export async function deleteObject(key: string): Promise<void> {
+  assertS3Configured();
+
+  await s3Client.send(
+    new DeleteObjectCommand({
+      Bucket: env.s3BucketName,
+      Key: key,
     })
   );
 }
