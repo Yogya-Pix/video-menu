@@ -52,3 +52,30 @@ export interface SessionRestaurant {
   name: string;
   slug: string;
 }
+
+export interface CartItem {
+  menuItemId: string;
+  name: string;
+  priceCents: number;
+  quantity: number;
+}
+
+export type OrderStatus = "PENDING" | "COMPLETED" | "CANCELLED";
+
+export interface OrderItem {
+  id: string;
+  quantity: number;
+  nameSnapshot: string;
+  priceCentsSnapshot: number;
+  menuItemId: string | null;
+}
+
+export interface Order {
+  id: string;
+  status: OrderStatus;
+  tableLabel: string | null;
+  notes: string | null;
+  totalCents: number;
+  createdAt: string;
+  items: OrderItem[];
+}

@@ -18,6 +18,12 @@ enum VideoStatus {
   FAILED
 }
 
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
 model Restaurant {
   id          String   @id @default(cuid())
   name        String
@@ -31,6 +37,7 @@ model Restaurant {
   users      User[]
   categories Category[]
   menuItems  MenuItem[]
+  orders     Order[]
 }
 
 model User {
@@ -78,6 +85,39 @@ model MenuItem {
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
+  orderItems OrderItem[]
+
   @@index([restaurantId])
   @@index([categoryId])
+}
+
+model Order {
+  id         String      @id @default(cuid())
+  status     OrderStatus @default(PENDING)
+  tableLabel String?
+  notes      String?
+  totalCents Int
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  restaurantId String
+  restaurant   Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  items        OrderItem[]
+
+  @@index([restaurantId, status])
+}
+
+model OrderItem {
+  id                 String @id @default(cuid())
+  quantity           Int
+  nameSnapshot       String
+  priceCentsSnapshot Int
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  menuItemId String?
+  menuItem   MenuItem? @relation(fields: [menuItemId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
 }

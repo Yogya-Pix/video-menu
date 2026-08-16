@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { VideoPlayer } from "@/components/VideoPlayer";
+import { useCart } from "@/lib/cart-context";
 import type { PublicMenuItem } from "@/lib/types";
 
 function formatPrice(cents: number) {
@@ -12,6 +13,8 @@ const EXIT_DURATION_MS = 200;
 
 export function DishModal({ item, onClose }: { item: PublicMenuItem; onClose: () => void }) {
   const [visible, setVisible] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+  const { addItem } = useCart();
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => setVisible(true));
@@ -21,6 +24,11 @@ export function DishModal({ item, onClose }: { item: PublicMenuItem; onClose: ()
   function handleClose() {
     setVisible(false);
     setTimeout(onClose, EXIT_DURATION_MS);
+  }
+
+  function handleAddToCart() {
+    addItem(item, quantity);
+    handleClose();
   }
 
   useEffect(() => {
@@ -73,6 +81,32 @@ export function DishModal({ item, onClose }: { item: PublicMenuItem; onClose: ()
           <span className="whitespace-nowrap text-base font-semibold text-brand-600">
             {formatPrice(item.priceCents)}
           </span>
+        </div>
+
+        <div className="flex items-center gap-3 border-t border-gray-100 p-4">
+          <div className="flex shrink-0 items-center gap-3 rounded-full border border-gray-200 px-1 py-1">
+            <button
+              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+              aria-label="Decrease quantity"
+              className="flex h-7 w-7 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100"
+            >
+              −
+            </button>
+            <span className="w-4 text-center text-sm font-semibold text-gray-900">{quantity}</span>
+            <button
+              onClick={() => setQuantity((q) => Math.min(20, q + 1))}
+              aria-label="Increase quantity"
+              className="flex h-7 w-7 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100"
+            >
+              +
+            </button>
+          </div>
+          <button
+            onClick={handleAddToCart}
+            className="flex-1 rounded-full bg-brand-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+          >
+            Add to order · {formatPrice(item.priceCents * quantity)}
+          </button>
         </div>
       </div>
     </div>

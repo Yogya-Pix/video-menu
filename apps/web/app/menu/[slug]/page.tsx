@@ -41,7 +41,7 @@ export default async function MenuPage({ params }: { params: { slug: string } })
         </div>
       </header>
 
-      <MenuBrowser categories={categories} items={items} />
+      <MenuBrowser slug={params.slug} categories={categories} items={items} />
     </main>
   );
 }

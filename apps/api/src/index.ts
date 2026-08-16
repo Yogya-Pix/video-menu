@@ -13,6 +13,7 @@ import { menuRouter } from "./routes/menu.routes";
 import { uploadsRouter } from "./routes/uploads.routes";
 import { qrRouter } from "./routes/qr.routes";
 import { restaurantRouter } from "./routes/restaurant.routes";
+import { ordersRouter } from "./routes/orders.routes";
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use("/api/menu", menuRouter);
 app.use("/api/uploads", uploadsRouter);
 app.use("/api/qrcode", qrRouter);
 app.use("/api/restaurant", restaurantRouter);
+app.use("/api/orders", ordersRouter);
 
 app.use(errorHandler);
 
