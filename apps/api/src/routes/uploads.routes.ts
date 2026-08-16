@@ -24,8 +24,12 @@ uploadsRouter.post("/presign", async (req, res) => {
     throw new HttpError(404, "Menu item not found");
   }
 
+  // Each upload gets a unique key (rather than a fixed "video.mp4" path) so
+  // replacing a video/thumbnail is a new URL, not a stale one — CloudFront's
+  // cache key ignores query strings, so a fixed path would keep serving the
+  // previous file until the CDN cache naturally expired.
   const extension = contentType.split("/")[1] ?? "bin";
-  const filename = kind === "video" ? `video.${extension}` : `thumbnail.${extension}`;
+  const filename = kind === "video" ? `video-${Date.now()}.${extension}` : `thumbnail-${Date.now()}.${extension}`;
   const key = `restaurants/${req.user!.restaurantId}/items/${itemId}/${filename}`;
 
   const { uploadUrl } = await createPresignedUploadUrl({ key, contentType });
