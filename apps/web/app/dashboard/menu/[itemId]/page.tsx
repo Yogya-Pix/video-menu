@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import type { Category, MenuItem } from "@/lib/types";
 import { MenuItemForm, type MenuItemFormValues } from "@/components/dashboard/MenuItemForm";
-import { VideoUploader } from "@/components/dashboard/VideoUploader";
+import { DishVideoManager } from "@/components/dashboard/DishVideoManager";
 
 export default function EditMenuItemPage({ params }: { params: { itemId: string } }) {
   const router = useRouter();
@@ -54,15 +54,9 @@ export default function EditMenuItemPage({ params }: { params: { itemId: string 
         </button>
       </div>
 
-      <div className="flex flex-wrap gap-8">
-        <div>
-          <p className="mb-2 text-sm font-medium text-gray-700">Dish video</p>
-          <VideoUploader itemId={item.id} kind="video" currentUrl={item.videoUrl} onUploaded={setItem} />
-        </div>
-        <div>
-          <p className="mb-2 text-sm font-medium text-gray-700">Thumbnail (optional)</p>
-          <VideoUploader itemId={item.id} kind="thumbnail" currentUrl={item.thumbnailUrl} onUploaded={setItem} />
-        </div>
+      <div>
+        <p className="mb-2 text-sm font-medium text-gray-700">Dish videos</p>
+        <DishVideoManager itemId={item.id} videos={item.videos} onUpdated={setItem} />
       </div>
 
       <MenuItemForm

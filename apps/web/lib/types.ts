@@ -8,17 +8,20 @@ export interface PublicMenuResponse {
   items: PublicMenuItem[];
 }
 
+export interface DishVideo {
+  id: string;
+  videoUrl: string;
+  thumbnailUrl: string | null;
+}
+
 export interface PublicMenuItem {
   id: string;
   name: string;
   description: string | null;
   priceCents: number;
   categoryId: string | null;
-  videoUrl: string | null;
-  thumbnailUrl: string | null;
+  videos: DishVideo[];
 }
-
-export type VideoStatus = "PENDING" | "READY" | "FAILED";
 
 export interface MenuItem {
   id: string;
@@ -28,11 +31,7 @@ export interface MenuItem {
   categoryId: string | null;
   isAvailable: boolean;
   sortOrder: number;
-  videoKey: string | null;
-  videoStatus: VideoStatus;
-  thumbnailKey: string | null;
-  videoUrl: string | null;
-  thumbnailUrl: string | null;
+  videos: DishVideo[];
 }
 
 export interface Category {
