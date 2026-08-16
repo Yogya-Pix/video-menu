@@ -11,7 +11,7 @@ export async function generateAndUploadQrCode(params: {
     margin: 2,
   });
 
-  const key = `restaurants/${params.restaurantId}/qrcode.png`;
+  const key = `restaurants/${params.restaurantId}/qrcode-${Date.now()}.png`;
   await putObject({ key, body: buffer, contentType: "image/png" });
 
   return { key, url: cdnUrlForKey(key) };

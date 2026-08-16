@@ -135,6 +135,11 @@ menuRouter.patch("/items/:id/video", async (req, res) => {
     where: { id: existing.id },
     data: { videoKey, videoStatus: "READY" },
   });
+
+  if (existing.videoKey && existing.videoKey !== videoKey) {
+    deleteObject(existing.videoKey).catch(() => {});
+  }
+
   res.json({ item: serializeItem(item) });
 });
 
@@ -150,6 +155,11 @@ menuRouter.patch("/items/:id/thumbnail", async (req, res) => {
     where: { id: existing.id },
     data: { thumbnailKey },
   });
+
+  if (existing.thumbnailKey && existing.thumbnailKey !== thumbnailKey) {
+    deleteObject(existing.thumbnailKey).catch(() => {});
+  }
+
   res.json({ item: serializeItem(item) });
 });
 
