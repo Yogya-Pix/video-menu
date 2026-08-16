@@ -16,6 +16,7 @@ publicRouter.get("/menu/:slug", async (req, res) => {
       menuItems: {
         where: { isAvailable: true },
         orderBy: { sortOrder: "asc" },
+        include: { videos: { orderBy: { sortOrder: "asc" } } },
       },
     },
   });
@@ -37,8 +38,11 @@ publicRouter.get("/menu/:slug", async (req, res) => {
       description: item.description,
       priceCents: item.priceCents,
       categoryId: item.categoryId,
-      videoUrl: item.videoStatus === "READY" && item.videoKey ? cdnUrlForKey(item.videoKey) : null,
-      thumbnailUrl: item.thumbnailKey ? cdnUrlForKey(item.thumbnailKey) : null,
+      videos: item.videos.map((v) => ({
+        id: v.id,
+        videoUrl: cdnUrlForKey(v.videoKey),
+        thumbnailUrl: v.thumbnailKey ? cdnUrlForKey(v.thumbnailKey) : null,
+      })),
     })),
   });
 });

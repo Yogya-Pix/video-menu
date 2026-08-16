@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { useCart } from "@/lib/cart-context";
 import type { PublicMenuItem } from "@/lib/types";
@@ -14,7 +14,11 @@ const EXIT_DURATION_MS = 200;
 export function DishModal({ item, onClose }: { item: PublicMenuItem; onClose: () => void }) {
   const [visible, setVisible] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const carouselRef = useRef<HTMLDivElement>(null);
   const { addItem } = useCart();
+
+  const slides = item.videos.length > 0 ? item.videos : [null];
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => setVisible(true));
@@ -29,6 +33,12 @@ export function DishModal({ item, onClose }: { item: PublicMenuItem; onClose: ()
   function handleAddToCart() {
     addItem(item, quantity);
     handleClose();
+  }
+
+  function handleCarouselScroll() {
+    const el = carouselRef.current;
+    if (!el || el.clientWidth === 0) return;
+    setActiveSlide(Math.round(el.scrollLeft / el.clientWidth));
   }
 
   useEffect(() => {
@@ -62,7 +72,22 @@ export function DishModal({ item, onClose }: { item: PublicMenuItem; onClose: ()
         </div>
 
         <div className="relative">
-          <VideoPlayer videoUrl={item.videoUrl} thumbnailUrl={item.thumbnailUrl} label={item.name} />
+          <div
+            ref={carouselRef}
+            onScroll={handleCarouselScroll}
+            className="flex snap-x snap-mandatory overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {slides.map((video, idx) => (
+              <div key={video?.id ?? "empty"} className="w-full shrink-0 snap-center">
+                <VideoPlayer
+                  videoUrl={video?.videoUrl ?? null}
+                  thumbnailUrl={video?.thumbnailUrl ?? null}
+                  label={slides.length > 1 ? `${item.name} — video ${idx + 1}` : item.name}
+                />
+              </div>
+            ))}
+          </div>
+
           <button
             onClick={handleClose}
             aria-label="Close"
@@ -72,6 +97,19 @@ export function DishModal({ item, onClose }: { item: PublicMenuItem; onClose: ()
               <path d="M18 6 6 18M6 6l12 12" strokeLinecap="round" />
             </svg>
           </button>
+
+          {slides.length > 1 && (
+            <div className="pointer-events-none absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
+              {slides.map((video, idx) => (
+                <span
+                  key={video?.id ?? idx}
+                  className={`h-1.5 w-1.5 rounded-full transition-colors duration-200 ${
+                    idx === activeSlide ? "bg-white" : "bg-white/40"
+                  }`}
+                />
+              ))}
+            </div>
+          )}
         </div>
         <div className="flex items-start justify-between gap-3 p-4">
           <div>

@@ -12,12 +12,6 @@ enum UserRole {
   STAFF
 }
 
-enum VideoStatus {
-  PENDING
-  READY
-  FAILED
-}
-
 enum OrderStatus {
   PENDING
   COMPLETED
@@ -67,17 +61,14 @@ model Category {
 }
 
 model MenuItem {
-  id           String      @id @default(cuid())
-  name         String
-  description  String?
-  priceCents   Int
-  isAvailable  Boolean     @default(true)
-  sortOrder    Int         @default(0)
-  videoKey     String?
-  videoStatus  VideoStatus @default(PENDING)
-  thumbnailKey String?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  priceCents  Int
+  isAvailable Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   restaurantId String
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
@@ -86,9 +77,23 @@ model MenuItem {
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
   orderItems OrderItem[]
+  videos     DishVideo[]
 
   @@index([restaurantId])
   @@index([categoryId])
+}
+
+model DishVideo {
+  id           String   @id @default(cuid())
+  videoKey     String
+  thumbnailKey String?
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  menuItemId String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  @@index([menuItemId])
 }
 
 model Order {

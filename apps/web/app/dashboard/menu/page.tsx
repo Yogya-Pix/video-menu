@@ -58,9 +58,9 @@ export default function MenuManagementPage() {
         <ul className="divide-y divide-gray-200 rounded-xl border border-gray-200 bg-white">
           {items.map((item) => (
             <li key={item.id} className="flex items-center gap-4 px-4 py-3">
-              {item.thumbnailUrl ? (
+              {item.videos[0]?.thumbnailUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={item.thumbnailUrl} alt="" className="h-14 w-14 rounded-lg object-cover" />
+                <img src={item.videos[0].thumbnailUrl} alt="" className="h-14 w-14 rounded-lg object-cover" />
               ) : (
                 <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-gray-100 text-[10px] text-gray-400">
                   No image
@@ -77,12 +77,14 @@ export default function MenuManagementPage() {
 
               <span
                 className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                  item.videoStatus === "READY"
-                    ? "bg-green-100 text-green-700"
-                    : "bg-yellow-100 text-yellow-700"
+                  item.videos.length > 0 ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
                 }`}
               >
-                {item.videoStatus === "READY" ? "Video ready" : "No video"}
+                {item.videos.length === 0
+                  ? "No video"
+                  : item.videos.length === 1
+                    ? "1 video"
+                    : `${item.videos.length} videos`}
               </span>
 
               <Link href={`/dashboard/menu/${item.id}`} className="text-sm text-brand-600 hover:underline">

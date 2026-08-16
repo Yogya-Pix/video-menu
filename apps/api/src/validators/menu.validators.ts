@@ -18,11 +18,11 @@ export const createMenuItemSchema = z.object({
 
 export const updateMenuItemSchema = createMenuItemSchema.partial();
 
-export const attachVideoSchema = z.object({
+export const addVideoSchema = z.object({
   videoKey: z.string().min(1),
 });
 
-export const attachThumbnailSchema = z.object({
+export const attachVideoThumbnailSchema = z.object({
   thumbnailKey: z.string().min(1),
 });
 
