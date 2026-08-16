@@ -4,6 +4,9 @@ import { useMemo, useState } from "react";
 import { CategoryNav } from "./CategoryNav";
 import { DishGridCard } from "./DishGridCard";
 import { DishModal } from "./DishModal";
+import { CartBar } from "./CartBar";
+import { CartSheet } from "./CartSheet";
+import { CartProvider } from "@/lib/cart-context";
 import type { PublicMenuItem } from "@/lib/types";
 
 const UNCATEGORIZED_ID = "__uncategorized__";
@@ -24,9 +27,11 @@ function EmptyState({ message }: { message: string }) {
 }
 
 export function MenuBrowser({
+  slug,
   categories,
   items,
 }: {
+  slug: string;
   categories: { id: string; name: string }[];
   items: PublicMenuItem[];
 }) {
@@ -39,6 +44,7 @@ export function MenuBrowser({
 
   const [activeId, setActiveId] = useState(tabs[0]?.id ?? UNCATEGORIZED_ID);
   const [openItem, setOpenItem] = useState<PublicMenuItem | null>(null);
+  const [cartOpen, setCartOpen] = useState(false);
 
   const visibleItems = items.filter((item) =>
     activeId === UNCATEGORIZED_ID ? !item.categoryId : item.categoryId === activeId
@@ -49,20 +55,25 @@ export function MenuBrowser({
   }
 
   return (
-    <div>
-      <CategoryNav tabs={tabs} activeId={activeId} onSelect={setActiveId} />
+    <CartProvider slug={slug}>
+      <div>
+        <CategoryNav tabs={tabs} activeId={activeId} onSelect={setActiveId} />
 
-      {visibleItems.length === 0 ? (
-        <EmptyState message="Nothing in this category yet." />
-      ) : (
-        <div key={activeId} className="animate-fade-in-up grid grid-cols-2 gap-4 px-4 py-5">
-          {visibleItems.map((item) => (
-            <DishGridCard key={item.id} item={item} onOpen={() => setOpenItem(item)} />
-          ))}
-        </div>
-      )}
+        {visibleItems.length === 0 ? (
+          <EmptyState message="Nothing in this category yet." />
+        ) : (
+          <div key={activeId} className="animate-fade-in-up grid grid-cols-2 gap-4 px-4 py-5">
+            {visibleItems.map((item) => (
+              <DishGridCard key={item.id} item={item} onOpen={() => setOpenItem(item)} />
+            ))}
+          </div>
+        )}
 
-      {openItem && <DishModal item={openItem} onClose={() => setOpenItem(null)} />}
-    </div>
+        {openItem && <DishModal key={openItem.id} item={openItem} onClose={() => setOpenItem(null)} />}
+
+        <CartBar onOpen={() => setCartOpen(true)} />
+        {cartOpen && <CartSheet slug={slug} onClose={() => setCartOpen(false)} />}
+      </div>
+    </CartProvider>
   );
 }

@@ -8,6 +8,7 @@ import { api } from "@/lib/api";
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Overview" },
   { href: "/dashboard/menu", label: "Menu" },
+  { href: "/dashboard/orders", label: "Orders" },
 ];
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
