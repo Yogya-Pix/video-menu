@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma";
-import { cdnUrlForKey } from "../lib/s3";
+import { cdnUrlForKey, deleteObject } from "../lib/s3";
 import { requireAuth } from "../middleware/auth.middleware";
 import { HttpError } from "../middleware/errorHandler";
 import {
@@ -149,6 +149,40 @@ menuRouter.patch("/items/:id/thumbnail", async (req, res) => {
   const item = await prisma.menuItem.update({
     where: { id: existing.id },
     data: { thumbnailKey },
+  });
+  res.json({ item: serializeItem(item) });
+});
+
+menuRouter.delete("/items/:id/video", async (req, res) => {
+  const existing = await prisma.menuItem.findFirst({
+    where: { id: req.params.id, restaurantId: req.user!.restaurantId },
+  });
+  if (!existing) throw new HttpError(404, "Menu item not found");
+
+  if (existing.videoKey) {
+    await deleteObject(existing.videoKey);
+  }
+
+  const item = await prisma.menuItem.update({
+    where: { id: existing.id },
+    data: { videoKey: null, videoStatus: "PENDING" },
+  });
+  res.json({ item: serializeItem(item) });
+});
+
+menuRouter.delete("/items/:id/thumbnail", async (req, res) => {
+  const existing = await prisma.menuItem.findFirst({
+    where: { id: req.params.id, restaurantId: req.user!.restaurantId },
+  });
+  if (!existing) throw new HttpError(404, "Menu item not found");
+
+  if (existing.thumbnailKey) {
+    await deleteObject(existing.thumbnailKey);
+  }
+
+  const item = await prisma.menuItem.update({
+    where: { id: existing.id },
+    data: { thumbnailKey: null },
   });
   res.json({ item: serializeItem(item) });
 });

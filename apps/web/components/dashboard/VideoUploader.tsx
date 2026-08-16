@@ -24,6 +24,7 @@ export function VideoUploader({
   const inputRef = useRef<HTMLInputElement>(null);
   const [progress, setProgress] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [removing, setRemoving] = useState(false);
 
   const allowedTypes = kind === "video" ? ALLOWED_VIDEO_TYPES : ALLOWED_IMAGE_TYPES;
   const maxBytes = kind === "video" ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES;
@@ -65,6 +66,21 @@ export function VideoUploader({
     }
   }
 
+  async function handleRemove() {
+    if (!confirm(`Remove the ${kind === "video" ? "video" : "thumbnail"}?`)) return;
+    setError(null);
+    setRemoving(true);
+    try {
+      const path = kind === "video" ? `/api/menu/items/${itemId}/video` : `/api/menu/items/${itemId}/thumbnail`;
+      const { item } = await api.delete<{ item: MenuItem }>(path);
+      onUploaded(item);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't remove it");
+    } finally {
+      setRemoving(false);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-2">
       {kind === "video" ? (
@@ -89,9 +105,19 @@ export function VideoUploader({
         type="file"
         accept={allowedTypes.join(",")}
         onChange={handleFileChange}
-        disabled={progress !== null}
+        disabled={progress !== null || removing}
         className="text-xs text-gray-600"
       />
+
+      {currentUrl && (
+        <button
+          onClick={handleRemove}
+          disabled={progress !== null || removing}
+          className="self-start text-xs font-medium text-red-600 hover:underline disabled:opacity-60"
+        >
+          {removing ? "Removing..." : `Remove ${kind === "video" ? "video" : "thumbnail"}`}
+        </button>
+      )}
 
       {progress !== null && (
         <div className="h-1.5 w-40 overflow-hidden rounded-full bg-gray-200">
